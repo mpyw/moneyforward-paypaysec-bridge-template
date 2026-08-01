@@ -26,7 +26,7 @@ Google Workspace ではなく個人 Gmail を想定している。サービス�
 
 - [ ] **A.** MoneyForward に手入力口座を 1 つ作成 + account_id_hash をメモ
 - [ ] **B.** Google Cloud で Gmail API を有効化し、OAuth クライアント (デスクトップ) を作成
-- [ ] **C.** `go run …/cmd/mfpp@v1 debug gmail authorize` で資格情報を発行
+- [ ] **C.** `go run …/cmd/mfpp@v1 gmail authorize` で資格情報を発行
 - [ ] **D.** `gh secret set` で 6 つの secret を登録
 
 A・B はブラウザ、C・D はターミナル。
@@ -74,7 +74,7 @@ OTP メールは Gmail API から直接読む。個人 Gmail はサービスア�
 ```bash
 # client_secret.json を置いたディレクトリで
 go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v1 \
-  debug gmail authorize
+  gmail authorize
 ```
 
 ブラウザが開いて同意を求められ、`gmail-credentials.json` ができる。
@@ -87,7 +87,7 @@ go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v1 \
 
 ```bash
 go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v1 \
-  debug gmail check     # どのメールボックスが開くか
+  gmail check     # どのメールボックスが開くか
 ```
 
 ## D. secrets を登録
@@ -154,11 +154,11 @@ workflow が異常終了すると GitHub から通知メールが来る。ログ
 | `the page was still loading after 20s` | 非同期ロードが終わらなかった | 一時的なら再実行。続くならサイト側の変更 |
 | `評価額合計 is N but …` | 3 ルートが食い違った | セレクタがずれた。`mfpp debug paypaysec probe --url …` |
 | `the total is N but nothing was listed under it` | 合計はあるのに銘柄行が無い | 保有銘柄セクションの描画失敗 |
-| `deletes too much of the ledger` | 削除が多すぎる | **口座は無傷**。ログの `section=` と 銘柄数 を見て、読めなかったページを特定する |
+| `deletes entries from categories this run did not read` | 台帳にあるカテゴリを一度も読んでいない | **口座は無傷**。ログの 8 行を見て、どのカテゴリが出ていないかを特定する。売却で銘柄が減っただけならこのエラーにはならない |
 | `reported no error but …` | 書き込んだのに反映されていない | 併記される「the service said」を読む |
 | `more than one entry named` | MF 側に同名行がある | 手で片方を消す |
 
 **どれも口座を壊す前に止まる。** 書き込みは 1 件ごとに読み戻して検証し、削除は
-台帳の 1/3 を超えると拒否する。「もっともらしい間違った数字を黙って記録する」
-経路は、2026-08-01 の敵対的レビューで見つかった 7 件を含めて塞いである。
+その銘柄のカテゴリを実際に読めた実行でしか行わない。「もっともらしい間違った
+数字を黙って記録する」経路は、敵対的レビューで見つかった 7 件を含めて塞いである。
 

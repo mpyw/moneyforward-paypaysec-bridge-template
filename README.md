@@ -73,7 +73,7 @@ git remote add upstream https://github.com/mpyw/moneyforward-paypaysec-bridge-te
    ```bash
    # client_secret.json を置いたディレクトリで
    go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v1 \
-     debug gmail authorize
+     gmail authorize
    ```
 4. **secrets を 6 つ登録する**（ターミナル）:
    ```bash
@@ -105,10 +105,14 @@ gh run watch "$(gh run list --workflow sync.yml --limit 1 --json databaseId --jq
 
 既存の資産を指定しないこと。**新しく 1 つ作って、それを渡す。**
 
-安全側の制限が 2 つある:
+安全側の制限が 3 つある:
 
-- 1 回の実行で台帳の 1/3 を超える削除は拒否する。スクレイプが部分的に失敗して
-  「保有ゼロ」と読めたときに、実在する銘柄を消させないため
+- **読まなかったカテゴリからは削除しない。** 8 ページのどれか 1 つでも読めなければ
+  実行全体が失敗するので、削除計画が立つ時点で全ページが検証済み。そのうえで、
+  台帳にあってこの実行が一度も見なかったカテゴリの行は「古い」ではなく「未検証」
+  なので、消さずに落とす
+- **売却で銘柄が減るのは正常系。** 何銘柄減っても、そのカテゴリを読めていれば
+  そのまま反映される
 - ページが読み込み中のプレースホルダを返している間は値を採用しない。
   投資信託ページは非同期ロード中に全項目 0 円を表示し、それは整合性チェックを
   すべて通ってしまう
