@@ -1,0 +1,19 @@
+# Google OAuth client for the Gmail API, and the user credential it mints.
+# The client file is only needed for the one-time consent; the credential it
+# produces is a long-lived read key to the mailbox.
+client_secret*.json
+*.apps.googleusercontent.com.json
+gmail-credentials.json
+
+# Anchored: an unanchored pattern matching a directory name removes its files
+# from the build without saying so, and `git add -A` skips an ignored path
+# silently.
+/.env
+/.env.*
+/.envrc
+*.pem
+*.key
+
+.DS_Store
+.idea/
+.vscode/

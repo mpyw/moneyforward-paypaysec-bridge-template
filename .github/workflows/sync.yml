@@ -1,0 +1,48 @@
+name: sync
+
+# 平日 JST 15:30 = UTC 06:30。月〜金 (cron は 0=Sun, 1-5=Mon-Fri)。
+#
+# 実績では GitHub の scheduler 遅延で 1〜3 時間ずれて発火する。大引け後という
+# 要件は満たすが定刻ではない。
+#
+# 頻度を上げないこと。PayPay 証券も MoneyForward も、短時間に何度もログインすると
+# OTP メールの送信自体を止める。
+on:
+  schedule:
+    - cron: '30 6 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  # チェックアウトすら要らないが、既定を絞る意味で明示しておく。OTP は Gmail API
+  # から直接読むので、GitHub のトークンには一切触れない。
+  contents: read
+
+concurrency:
+  # 同時 2 ジョブを走らせない。PayPay も MF も 1 アカウントの直列リソースで、
+  # 2 本走ると互いの OTP メールを取り合う。
+  group: sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    # テンプレート本体では走らせない。secrets が無いので、毎平日 public に赤い
+    # ✗ が付き、失敗通知が飛び続けるだけになる。fork ではこの条件が外れる。
+    if: github.repository != 'mpyw/moneyforward-paypaysec-bridge-template'
+    name: sync balances
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      # actions/checkout は要らない。アクションは composite で、全ステップが
+      # 自分の github.action_path に閉じている。
+      - name: Sync
+        uses: mpyw/moneyforward-paypaysec-bridge-action@v1
+        with:
+          paypaysec-username: ${{ secrets.PAYPAY_SEC_USERNAME }}
+          paypaysec-password: ${{ secrets.PAYPAY_SEC_PASSWORD }}
+          moneyforward-email: ${{ secrets.MF_EMAIL }}
+          moneyforward-password: ${{ secrets.MF_PASSWORD }}
+          account-id-hash: ${{ secrets.MF_ASSET_ID }}
+          # gmail.readonly の authorized_user JSON。
+          # `mfpp debug gmail authorize` が作る。SETUP.md の C を参照。
+          gmail-credentials: ${{ secrets.GMAIL_CREDENTIALS_JSON }}
