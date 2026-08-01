@@ -1,0 +1,9 @@
+# フォークしてアクションを SHA 固定するなら、これも一緒に入れること。
+# 固定しただけだと、PayPay 証券や MoneyForward が DOM を変えた日にセレクタの
+# 修正が届かず、毎営業日失敗する。
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

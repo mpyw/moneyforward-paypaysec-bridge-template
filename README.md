@@ -117,6 +117,32 @@ gh run watch "$(gh run list --workflow sync.yml --limit 1 --json databaseId --jq
   投資信託ページは非同期ロード中に全項目 0 円を表示し、それは整合性チェックを
   すべて通ってしまう
 
+## タグは動く — 固定するなら SHA-1
+
+`sync.yml` の `uses: …@v1` はポインタで、アクション側の author がいつでも別の
+コミットに向け直せる。**あなたの資格情報を渡して実行するコードが、あなたの
+関与なしに変わり得る**ということ。
+
+固定するなら SHA-1 を書く:
+
+```yaml
+- uses: mpyw/moneyforward-paypaysec-bridge-action@a0729fcc4532a90a5a08f50456cb5211e2357e85  # v1.0.2
+```
+
+代償はスクレイパ特有のもので、PayPay 証券や MoneyForward が DOM を変えた日に
+セレクタの修正が届かず、毎営業日失敗する。固定するなら Dependabot も入れて、
+更新が PR で来るようにしておく:
+
+```yaml
+# .github/dependabot.yml
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+```
+
 ## 頻度を上げないこと
 
 両サービスとも、短時間にログインを繰り返すと **OTP メールの送信自体を止める。**
