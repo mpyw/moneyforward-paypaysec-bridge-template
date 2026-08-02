@@ -129,7 +129,7 @@ gh run watch "$(gh run list --workflow sync.yml --limit 1 --json databaseId --jq
 固定するなら SHA-1 を書く:
 
 ```yaml
-- uses: mpyw/moneyforward-paypaysec-bridge-action@b0ae9c5e617eb990a151bbd125c3d3a631b5d642  # v1.0.5
+- uses: mpyw/moneyforward-paypaysec-bridge-action@e2ea33fd2c4c13de763ea9e3a159ff3c3166d6ee  # v1.0.6
 ```
 
 > [!WARNING]
