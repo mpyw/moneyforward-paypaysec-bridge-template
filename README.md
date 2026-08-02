@@ -21,15 +21,16 @@ MoneyForward の手入力口座に反映する。そのためのフォーク用�
 
 ---
 
-## ⚠ 最初に: private にしてからフォークする
+## 最初に: private にしてからフォークする
 
-このリポジトリを普通に Fork すると、**あなたの fork も public になる。**
-GitHub の Fork ボタンは public → private の変換ができない。
-
-`sync.yml` 自体に秘密は無いが、**public リポジトリでは Actions の実行ログが
-誰にでも見える**。このジョブのログには読み取った銘柄名が出る。secrets は
-マスクされ、金額もプログラムがマスクするが、**銘柄名はマスクされない。**
-public のまま動かすと、あなたの保有銘柄が公開される。
+> [!CAUTION]
+> このリポジトリを普通に Fork すると、**あなたの fork も public になる。**
+> GitHub の Fork ボタンは public → private の変換ができない。
+>
+> `sync.yml` 自体に秘密は無いが、**public リポジトリでは Actions の実行ログが
+> 誰にでも見える**。このジョブのログには読み取った銘柄名が出る。secrets は
+> マスクされ、金額もプログラムがマスクするが、**銘柄名はマスクされない。**
+> public のまま動かすと、あなたの保有銘柄が公開される。
 
 ### private fork の作り方
 
@@ -100,10 +101,11 @@ gh run watch "$(gh run list --workflow sync.yml --limit 1 --json databaseId --jq
 
 ## 何が書き換わるか
 
-**`MF_ASSET_ID` で指定した手入力口座の中身は、このジョブが管理する。
-保有銘柄に対応しないエントリは削除される。** 他の口座には触らない。
-
-既存の資産を指定しないこと。**新しく 1 つ作って、それを渡す。**
+> [!WARNING]
+> **`MF_ASSET_ID` で指定した手入力口座の中身は、このジョブが管理する。
+> 保有銘柄に対応しないエントリは削除される。** 他の口座には触らない。
+>
+> 既存の資産を指定しないこと。**新しく 1 つ作って、それを渡す。**
 
 安全側の制限が 3 つある:
 
@@ -119,19 +121,21 @@ gh run watch "$(gh run list --workflow sync.yml --limit 1 --json databaseId --jq
 
 ## タグは動く — 固定するなら SHA-1
 
-`sync.yml` の `uses: …@v1` はポインタで、アクション側の author がいつでも別の
-コミットに向け直せる。**あなたの資格情報を渡して実行するコードが、あなたの
-関与なしに変わり得る**ということ。
+> [!IMPORTANT]
+> `sync.yml` の `uses: …@v1` はポインタで、アクション側の author がいつでも別の
+> コミットに向け直せる。**あなたの資格情報を渡して実行するコードが、あなたの
+> 関与なしに変わり得る**ということ。
 
 固定するなら SHA-1 を書く:
 
 ```yaml
-- uses: mpyw/moneyforward-paypaysec-bridge-action@a0729fcc4532a90a5a08f50456cb5211e2357e85  # v1.0.2
+- uses: mpyw/moneyforward-paypaysec-bridge-action@v1.0.3  # v1.0.3
 ```
 
-代償はスクレイパ特有のもので、PayPay 証券や MoneyForward が DOM を変えた日に
-セレクタの修正が届かず、毎営業日失敗する。固定するなら Dependabot も入れて、
-更新が PR で来るようにしておく:
+> [!WARNING]
+> 代償はスクレイパ特有のもの。PayPay 証券や MoneyForward が DOM を変えた日に
+> セレクタの修正が届かず、**毎営業日失敗する**。固定するなら Dependabot も
+> 入れて、更新が PR で来るようにしておくこと:
 
 ```yaml
 # .github/dependabot.yml
@@ -145,8 +149,9 @@ updates:
 
 ## 頻度を上げないこと
 
-両サービスとも、短時間にログインを繰り返すと **OTP メールの送信自体を止める。**
-5 回程度で止まった実績がある（同日中に復活した）。失敗しても連打しない。
+> [!CAUTION]
+> 両サービスとも、短時間にログインを繰り返すと **OTP メールの送信自体を止める。**
+> 5 回程度で止まった実績がある（同日中に復活した）。失敗しても連打しない。
 
 ## License
 
