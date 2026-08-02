@@ -138,7 +138,7 @@ gh api repos/mpyw/moneyforward-paypaysec-bridge-action/git/ref/tags/v3 --jq .obj
 ```
 
 ```yaml
-- uses: mpyw/moneyforward-paypaysec-bridge-action@<上で出た 40 桁>  # v3.x.y
+- uses: mpyw/moneyforward-paypaysec-bridge-action@<上で出た 40 桁>  # v3
 ```
 
 > [!WARNING]
