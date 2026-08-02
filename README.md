@@ -72,17 +72,17 @@ git remote add upstream https://github.com/mpyw/moneyforward-paypaysec-bridge-te
 
 [SETUP.md](./SETUP.md) に A〜D の 4 ステップがある。要約:
 
-1. **MoneyForward に手入力資産を 1 つ作る**（ブラウザ）。URL の `account_id_hash` をメモ
+1. **MoneyForward に手入力資産を 1 つ作る**（ブラウザ）。URL の `ASSET_ID` をメモ
 2. **Google Cloud で Gmail API を有効化し、OAuth クライアント（デスクトップ）を作る**（ブラウザ）
 3. **Gmail 資格情報を発行する**（ターミナル）:
    ```bash
    # client_secret.json を置いたディレクトリで
-   go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v2 \
+   go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v3 \
      gmail authorize
    ```
 4. **secrets を 6 つ登録する**（ターミナル）:
    ```bash
-   for name in PAYPAYSEC_USERNAME PAYPAYSEC_PASSWORD MONEYFORWARD_EMAIL MONEYFORWARD_PASSWORD MONEYFORWARD_ACCOUNT_ID_HASH; do
+   for name in PAYPAYSEC_USERNAME PAYPAYSEC_PASSWORD MONEYFORWARD_EMAIL MONEYFORWARD_PASSWORD MONEYFORWARD_ASSET_ID; do
      gh secret set "$name"
    done
    gh secret set GMAIL_CREDENTIALS < gmail-credentials.json
@@ -106,7 +106,7 @@ gh run watch "$(gh run list --workflow sync.yml --limit 1 --json databaseId --jq
 ## 何が書き換わるか
 
 > [!WARNING]
-> **`MONEYFORWARD_ACCOUNT_ID_HASH` で指定した手入力口座の中身は、このジョブが管理する。
+> **`MONEYFORWARD_ASSET_ID` で指定した手入力口座の中身は、このジョブが管理する。
 > 保有銘柄に対応しないエントリは削除される。** 他の口座には触らない。
 >
 > 既存の資産を指定しないこと。**新しく 1 つ作って、それを渡す。**
@@ -126,14 +126,14 @@ gh run watch "$(gh run list --workflow sync.yml --limit 1 --json databaseId --jq
 ## タグは動く — 固定するなら SHA-1
 
 > [!IMPORTANT]
-> `sync.yml` の `uses: …@v2` はポインタで、アクション側の author がいつでも別の
+> `sync.yml` の `uses: …@v3` はポインタで、アクション側の author がいつでも別の
 > コミットに向け直せる。**あなたの資格情報を渡して実行するコードが、あなたの
 > 関与なしに変わり得る**ということ。
 
 固定するなら SHA-1 を書く:
 
 ```yaml
-- uses: mpyw/moneyforward-paypaysec-bridge-action@7ceca735063425ee07f7453d1e7505df4ca63c51  # v2.0.2
+- uses: mpyw/moneyforward-paypaysec-bridge-action@cba1e7ab411acfa640ef3b9a387da104cb338346  # v3.0.0
 ```
 
 > [!WARNING]
