@@ -132,8 +132,13 @@ gh run watch "$(gh run list --workflow sync.yml --limit 1 --json databaseId --jq
 
 固定するなら SHA-1 を書く:
 
+```bash
+# いま v3 が指しているコミットを引く
+gh api repos/mpyw/moneyforward-paypaysec-bridge-action/git/ref/tags/v3 --jq .object.sha
+```
+
 ```yaml
-- uses: mpyw/moneyforward-paypaysec-bridge-action@cba1e7ab411acfa640ef3b9a387da104cb338346  # v3.0.0
+- uses: mpyw/moneyforward-paypaysec-bridge-action@<上で出た 40 桁>  # v3.x.y
 ```
 
 > [!WARNING]

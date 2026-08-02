@@ -44,7 +44,12 @@ jobs:
       #   気になるなら SHA-1 で固定する。ref が動かなくなるので、コードが
       #   変わるのはあなたが書き換えたときだけになる:
       #
-      #     uses: mpyw/moneyforward-paypaysec-bridge-action@cba1e7ab411acfa640ef3b9a387da104cb338346  # v3.0.0
+      #     uses: mpyw/moneyforward-paypaysec-bridge-action@<40 桁のコミット SHA>
+      #
+      #   SHA はここに書き写さず，そのつど引くこと。書いておくと，アクションが
+      #   更新されても古い版を指し続ける——直っていないバグを含む版かもしれない:
+      #     gh api repos/mpyw/moneyforward-paypaysec-bridge-action/git/ref/tags/v3 \
+      #       --jq .object.sha
       #
       #   代償は、スクレイパである以上ある。PayPay 証券や MoneyForward が DOM を
       #   変えた日にセレクタの修正が自動では届かず、毎営業日失敗する。固定するなら
