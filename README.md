@@ -64,23 +64,6 @@ git remote add upstream https://github.com/mpyw/moneyforward-paypaysec-bridge-te
 
 ---
 
-## v1 から上げる場合
-
-**v2 で secret 名が変わりました。** input 名と環境変数名が 4 通りの流儀で
-対応していたのを、1 本の規則（input を大文字にしてハイフンを `_` に）に揃えたためです。
-
-| v1 | v2 |
-|---|---|
-| `PAYPAY_SEC_USERNAME` | `PAYPAYSEC_USERNAME` |
-| `PAYPAY_SEC_PASSWORD` | `PAYPAYSEC_PASSWORD` |
-| `MF_EMAIL` | `MONEYFORWARD_EMAIL` |
-| `MF_PASSWORD` | `MONEYFORWARD_PASSWORD` |
-| `MF_ASSET_ID` | `MONEYFORWARD_ACCOUNT_ID_HASH` |
-| `GMAIL_CREDENTIALS_JSON` | `GMAIL_CREDENTIALS` |
-
-`sync.yml` は upstream から取り込めば直りますが、**Secrets は自分で入れ直す必要が
-あります**（GitHub は値を読み出せないので、リネームはできません）。旧名は消しておくこと。
-
 ## セットアップ
 
 [SETUP.md](./SETUP.md) に A〜D の 4 ステップがある。要約:
@@ -146,7 +129,7 @@ gh run watch "$(gh run list --workflow sync.yml --limit 1 --json databaseId --jq
 固定するなら SHA-1 を書く:
 
 ```yaml
-- uses: mpyw/moneyforward-paypaysec-bridge-action@0449b2033160ea2df8c2ce5e4390c9951a4621d2  # v2.0.0
+- uses: mpyw/moneyforward-paypaysec-bridge-action@6b91d3bc8deb20347c4c8bf68df524e29027889b  # v2.0.1
 ```
 
 > [!WARNING]

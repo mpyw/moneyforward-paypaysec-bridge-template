@@ -36,7 +36,7 @@ jobs:
       # actions/checkout は要らない。アクションは composite で、全ステップが
       # 自分の github.action_path に閉じている。
       #
-      # ⚠ タグは動く。`@v1` は「v1 系の最新」を指すポインタで、アクション側の
+      # ⚠ タグは動く。`@v2` は「v2 系の最新」を指すポインタで、アクション側の
       #   author がいつでも別のコミットに向け直せる。つまりこのジョブは、
       #   あなたの証券口座と MoneyForward の資格情報を渡して、他人が後から
       #   差し替えられるコードを実行している。
@@ -44,7 +44,7 @@ jobs:
       #   気になるなら SHA-1 で固定する。ref が動かなくなるので、コードが
       #   変わるのはあなたが書き換えたときだけになる:
       #
-      #     uses: mpyw/moneyforward-paypaysec-bridge-action@0449b2033160ea2df8c2ce5e4390c9951a4621d2  # v2.0.0
+      #     uses: mpyw/moneyforward-paypaysec-bridge-action@6b91d3bc8deb20347c4c8bf68df524e29027889b  # v2.0.1
       #
       #   代償は、スクレイパである以上ある。PayPay 証券や MoneyForward が DOM を
       #   変えた日にセレクタの修正が自動では届かず、毎営業日失敗する。固定するなら
