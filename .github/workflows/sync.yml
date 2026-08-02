@@ -44,20 +44,20 @@ jobs:
       #   気になるなら SHA-1 で固定する。ref が動かなくなるので、コードが
       #   変わるのはあなたが書き換えたときだけになる:
       #
-      #     uses: mpyw/moneyforward-paypaysec-bridge-action@e2ea33fd2c4c13de763ea9e3a159ff3c3166d6ee  # v1.0.6
+      #     uses: mpyw/moneyforward-paypaysec-bridge-action@0449b2033160ea2df8c2ce5e4390c9951a4621d2  # v2.0.0
       #
       #   代償は、スクレイパである以上ある。PayPay 証券や MoneyForward が DOM を
       #   変えた日にセレクタの修正が自動では届かず、毎営業日失敗する。固定するなら
       #   Dependabot を有効にして、更新が PR で来るようにしておくこと:
       #   .github/dependabot.yml に package-ecosystem: github-actions
       - name: Sync
-        uses: mpyw/moneyforward-paypaysec-bridge-action@v1
+        uses: mpyw/moneyforward-paypaysec-bridge-action@v2
         with:
-          paypaysec-username: ${{ secrets.PAYPAY_SEC_USERNAME }}
-          paypaysec-password: ${{ secrets.PAYPAY_SEC_PASSWORD }}
-          moneyforward-email: ${{ secrets.MF_EMAIL }}
-          moneyforward-password: ${{ secrets.MF_PASSWORD }}
-          account-id-hash: ${{ secrets.MF_ASSET_ID }}
+          paypaysec-username: ${{ secrets.PAYPAYSEC_USERNAME }}
+          paypaysec-password: ${{ secrets.PAYPAYSEC_PASSWORD }}
+          moneyforward-email: ${{ secrets.MONEYFORWARD_EMAIL }}
+          moneyforward-password: ${{ secrets.MONEYFORWARD_PASSWORD }}
+          moneyforward-account-id-hash: ${{ secrets.MONEYFORWARD_ACCOUNT_ID_HASH }}
           # gmail.readonly の authorized_user JSON。
           # `mfpp debug gmail authorize` が作る。SETUP.md の C を参照。
-          gmail-credentials: ${{ secrets.GMAIL_CREDENTIALS_JSON }}
+          gmail-credentials: ${{ secrets.GMAIL_CREDENTIALS }}

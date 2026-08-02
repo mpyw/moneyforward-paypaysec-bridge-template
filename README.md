@@ -64,6 +64,23 @@ git remote add upstream https://github.com/mpyw/moneyforward-paypaysec-bridge-te
 
 ---
 
+## v1 から上げる場合
+
+**v2 で secret 名が変わりました。** input 名と環境変数名が 4 通りの流儀で
+対応していたのを、1 本の規則（input を大文字にしてハイフンを `_` に）に揃えたためです。
+
+| v1 | v2 |
+|---|---|
+| `PAYPAY_SEC_USERNAME` | `PAYPAYSEC_USERNAME` |
+| `PAYPAY_SEC_PASSWORD` | `PAYPAYSEC_PASSWORD` |
+| `MF_EMAIL` | `MONEYFORWARD_EMAIL` |
+| `MF_PASSWORD` | `MONEYFORWARD_PASSWORD` |
+| `MF_ASSET_ID` | `MONEYFORWARD_ACCOUNT_ID_HASH` |
+| `GMAIL_CREDENTIALS_JSON` | `GMAIL_CREDENTIALS` |
+
+`sync.yml` は upstream から取り込めば直りますが、**Secrets は自分で入れ直す必要が
+あります**（GitHub は値を読み出せないので、リネームはできません）。旧名は消しておくこと。
+
 ## セットアップ
 
 [SETUP.md](./SETUP.md) に A〜D の 4 ステップがある。要約:
@@ -73,15 +90,15 @@ git remote add upstream https://github.com/mpyw/moneyforward-paypaysec-bridge-te
 3. **Gmail 資格情報を発行する**（ターミナル）:
    ```bash
    # client_secret.json を置いたディレクトリで
-   go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v1 \
+   go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v2 \
      gmail authorize
    ```
 4. **secrets を 6 つ登録する**（ターミナル）:
    ```bash
-   for name in PAYPAY_SEC_USERNAME PAYPAY_SEC_PASSWORD MF_EMAIL MF_PASSWORD MF_ASSET_ID; do
+   for name in PAYPAYSEC_USERNAME PAYPAYSEC_PASSWORD MONEYFORWARD_EMAIL MONEYFORWARD_PASSWORD MONEYFORWARD_ACCOUNT_ID_HASH; do
      gh secret set "$name"
    done
-   gh secret set GMAIL_CREDENTIALS_JSON < gmail-credentials.json
+   gh secret set GMAIL_CREDENTIALS < gmail-credentials.json
    ```
 
 動作確認:
@@ -102,7 +119,7 @@ gh run watch "$(gh run list --workflow sync.yml --limit 1 --json databaseId --jq
 ## 何が書き換わるか
 
 > [!WARNING]
-> **`MF_ASSET_ID` で指定した手入力口座の中身は、このジョブが管理する。
+> **`MONEYFORWARD_ACCOUNT_ID_HASH` で指定した手入力口座の中身は、このジョブが管理する。
 > 保有銘柄に対応しないエントリは削除される。** 他の口座には触らない。
 >
 > 既存の資産を指定しないこと。**新しく 1 つ作って、それを渡す。**
@@ -122,14 +139,14 @@ gh run watch "$(gh run list --workflow sync.yml --limit 1 --json databaseId --jq
 ## タグは動く — 固定するなら SHA-1
 
 > [!IMPORTANT]
-> `sync.yml` の `uses: …@v1` はポインタで、アクション側の author がいつでも別の
+> `sync.yml` の `uses: …@v2` はポインタで、アクション側の author がいつでも別の
 > コミットに向け直せる。**あなたの資格情報を渡して実行するコードが、あなたの
 > 関与なしに変わり得る**ということ。
 
 固定するなら SHA-1 を書く:
 
 ```yaml
-- uses: mpyw/moneyforward-paypaysec-bridge-action@e2ea33fd2c4c13de763ea9e3a159ff3c3166d6ee  # v1.0.6
+- uses: mpyw/moneyforward-paypaysec-bridge-action@0449b2033160ea2df8c2ce5e4390c9951a4621d2  # v2.0.0
 ```
 
 > [!WARNING]

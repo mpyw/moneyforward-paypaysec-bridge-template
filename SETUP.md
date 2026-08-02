@@ -17,7 +17,7 @@ Google Workspace ではなく個人 Gmail を想定している。サービス�
 
 > [!TIP]
 > **OTP 専用の Google アカウントを作ることを勧める。**
-> `GMAIL_CREDENTIALS_JSON` は失効しない受信箱の読み取り鍵になる。専用アカウントに
+> `GMAIL_CREDENTIALS` は失効しない受信箱の読み取り鍵になる。専用アカウントに
 > しておけば、それが漏れたときに読まれる範囲が OTP メールだけになる。無料。
 > やるなら、両サービスの登録アドレス変更を先に済ませること。
 
@@ -27,7 +27,7 @@ Google Workspace ではなく個人 Gmail を想定している。サービス�
 
 - [ ] **A.** MoneyForward に手入力口座を 1 つ作成 + account_id_hash をメモ
 - [ ] **B.** Google Cloud で Gmail API を有効化し、OAuth クライアント（デスクトップ）を作成
-- [ ] **C.** `go run …/cmd/mfpp@v1 gmail authorize` で資格情報を発行
+- [ ] **C.** `go run …/cmd/mfpp@v2 gmail authorize` で資格情報を発行
 - [ ] **D.** `gh secret set` で 6 つの secret を登録
 
 A・B はブラウザ、C・D はターミナル。
@@ -45,7 +45,7 @@ PayPay 証券は MF 上では **1 つの手入力資産** にまとめる（Web 
    - **中身は空のままでよい。** 初回実行が銘柄を作る
 3. **資産 ID を確認**: 作成した資産の詳細ページ URL の末尾セグメント
    - URL 例: `https://moneyforward.com/accounts/show_manual/<ASSET_ID>`
-   - その `<ASSET_ID>` をメモ（D で `MF_ASSET_ID` に入れる）
+   - その `<ASSET_ID>` をメモ（D で `MONEYFORWARD_ACCOUNT_ID_HASH` に入れる）
 
 > [!WARNING]
 > **既存の資産を指定しないこと。** この資産の中身はジョブが管理し、保有銘柄に
@@ -169,7 +169,7 @@ https://myaccount.google.com/permissions で連携を解除すれば、refresh t
 
 ```bash
 # B-6 で client_secret.json を置いたディレクトリで
-go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v1 \
+go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v2 \
   gmail authorize
 ```
 
@@ -185,7 +185,7 @@ go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v1 \
 いないかはここで分かる:
 
 ```bash
-go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v1 \
+go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v2 \
   gmail check
 ```
 
@@ -209,18 +209,18 @@ GitHub に渡ることはない。引数に値を書かず、対話入力か std
 
 | キー | 入力値 |
 |---|---|
-| `PAYPAY_SEC_USERNAME` | PayPay 証券のログイン ID |
-| `PAYPAY_SEC_PASSWORD` | PayPay 証券パスワード |
-| `MF_EMAIL` | MoneyForward ログインメール |
-| `MF_PASSWORD` | MF パスワード |
-| `MF_ASSET_ID` | A でメモした手入力口座の account_id_hash |
-| `GMAIL_CREDENTIALS_JSON` | C で作った `gmail-credentials.json` の中身 |
+| `PAYPAYSEC_USERNAME` | PayPay 証券のログイン ID |
+| `PAYPAYSEC_PASSWORD` | PayPay 証券パスワード |
+| `MONEYFORWARD_EMAIL` | MoneyForward ログインメール |
+| `MONEYFORWARD_PASSWORD` | MF パスワード |
+| `MONEYFORWARD_ACCOUNT_ID_HASH` | A でメモした手入力口座の account_id_hash |
+| `GMAIL_CREDENTIALS` | C で作った `gmail-credentials.json` の中身 |
 
 ```bash
-for name in PAYPAY_SEC_USERNAME PAYPAY_SEC_PASSWORD MF_EMAIL MF_PASSWORD MF_ASSET_ID; do
+for name in PAYPAYSEC_USERNAME PAYPAYSEC_PASSWORD MONEYFORWARD_EMAIL MONEYFORWARD_PASSWORD MONEYFORWARD_ACCOUNT_ID_HASH; do
   gh secret set "$name"     # 値の入力を求められる
 done
-gh secret set GMAIL_CREDENTIALS_JSON < gmail-credentials.json
+gh secret set GMAIL_CREDENTIALS < gmail-credentials.json
 ```
 
 確認（名前と更新日時だけが出る。値は GitHub からも読み出せない）:
