@@ -34,6 +34,10 @@ MoneyForward の手入力口座に反映する。そのためのフォーク用�
 
 ### private fork の作り方
 
+`gh`（[GitHub CLI](https://cli.github.com/)）と `git` を使う。`brew install gh`
+などで入れて `gh auth login` を済ませておくこと。セットアップ全体で必要になる
+ものは [SETUP.md](./SETUP.md) の「用意するもの」にまとめてある。
+
 ```bash
 # 1. 空の private リポジトリを作る
 gh repo create <あなた>/moneyforward-paypaysec-bridge-private --private
@@ -129,7 +133,7 @@ gh run watch "$(gh run list --workflow sync.yml --limit 1 --json databaseId --jq
 固定するなら SHA-1 を書く:
 
 ```yaml
-- uses: mpyw/moneyforward-paypaysec-bridge-action@6b91d3bc8deb20347c4c8bf68df524e29027889b  # v2.0.1
+- uses: mpyw/moneyforward-paypaysec-bridge-action@7ceca735063425ee07f7453d1e7505df4ca63c51  # v2.0.2
 ```
 
 > [!WARNING]
