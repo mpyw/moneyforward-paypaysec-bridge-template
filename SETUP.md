@@ -26,7 +26,7 @@ Google Workspace ではなく個人 Gmail を想定している。サービス�
 ## 進捗チェックリスト
 
 - [ ] **A.** MoneyForward に手入力口座を 1 つ作成 + account_id_hash をメモ
-- [ ] **B.** Google Cloud で Gmail API を有効化し、OAuth クライアント (デスクトップ) を作成
+- [ ] **B.** Google Cloud で Gmail API を有効化し、OAuth クライアント（デスクトップ）を作成
 - [ ] **C.** `go run …/cmd/mfpp@v1 gmail authorize` で資格情報を発行
 - [ ] **D.** `gh secret set` で 6 つの secret を登録
 
@@ -53,48 +53,153 @@ PayPay 証券は MF 上では **1 つの手入力資産** にまとめる（Web 
 
 ---
 
-## B. Gmail API の OAuth クライアント作成
+## B. Google Cloud で Gmail API の OAuth クライアントを作る
 
-OTP メールは Gmail API から直接読む。個人 Gmail はサービスアカウントでは読めない
-(ドメイン全体の委任は Workspace 専用) ので、ユーザーの refresh token が要る。
+OTP メールは Gmail API から直接読む。**個人 Gmail はサービスアカウントでは読めない**
+（ドメイン全体の委任は Google Workspace 専用）ので、あなた自身の同意で発行した
+refresh token が要る。無料。課金の有効化も不要。
 
-1. Google Cloud プロジェクトで **Gmail API を有効化**
-2. **OAuth 同意画面**を設定
-   - User type: External (個人 Gmail なので Internal は選べない)
-   - アプリ名・サポートメール・デベロッパー連絡先
-   - スコープに `https://www.googleapis.com/auth/gmail.readonly` を追加
-   - **公開ステータスを「本番環境」にする**
-3. **認証情報 → OAuth クライアント ID → デスクトップ** を作成し、JSON を
-   `client_secret.json` として作業ディレクトリに置く (gitignore 済み)
+> [!NOTE]
+> Google Cloud コンソールの「OAuth 同意画面」は **Google Auth Platform**
+> （Branding / Audience / Data Access / Clients）に再編された。以下はその名前で
+> 書いてある。UI は変わるので、名前が合わなければ「同じことをしている場所」を探すこと。
+
+### B-1. プロジェクトを用意する
+
+https://console.cloud.google.com/ で新規プロジェクトを作る（既存のものでもよい）。
+名前は何でもよい。以降の設定はすべてこのプロジェクトに紐づく。
+
+### B-2. Gmail API を有効化する
+
+**APIs & Services → Library → "Gmail API" → Enable**
+
+有効化しないと、あとで同意フローが通ってもトークンで API を呼べない。
+
+### B-3. Branding — 同意画面に出る文言
+
+**Google Auth Platform → Branding**
+
+| 項目 | 何を入れるか |
+|---|---|
+| App name | 何でもよい。同意画面に出るだけ |
+| User support email | 自分のアドレス |
+| Developer contact information | 同上 |
+
+ロゴもホームページ URL も要らない。審査に出さないので、埋まっていればよい。
+
+### B-4. Audience — External と「本番環境」
+
+**Google Auth Platform → Audience**
+
+- **User type: External**。個人 Gmail では Internal を選べない（Workspace 専用）
+- **Publishing status を "In production" にする**
 
 > [!WARNING]
-> 2 の公開ステータスを「テスト」のままにすると、**refresh token が 7 日で失効**し、
-> cron が 1 週間後に静かに死ぬ。発行から 1 週間離れて壊れるので、知らないと原因を
-> 追いにくい。制限付きスコープなので未確認アプリの警告は出るが、自分のアカウントで
-> 使う分には通せる。
+> **"Testing" のままにしないこと。** Testing の外部アプリが発行した refresh token は
+> **7 日で失効する。** つまりセットアップの 1 週間後に cron が静かに死ぬ。発行から
+> 遠く離れて壊れるので、知らないと原因に辿り着けない。
+
+### B-5. Data Access — スコープはひとつだけ
+
+**Google Auth Platform → Data Access → Add or remove scopes**
+
+```
+https://www.googleapis.com/auth/gmail.readonly
+```
+
+**これ以外は足さない。** CI に置く資格情報が漏れたときの影響を「このメールボックスの
+読み取り」に留めるため。送信も削除もラベル操作もできない権限にしておく。
+
+`gmail.readonly` は Google の分類では制限付きスコープなので、審査を通していない
+アプリでは同意画面の前に警告が出る（B-7）。
+
+### B-6. Clients — デスクトップアプリのクライアント
+
+**Google Auth Platform → Clients → Create client**
+
+- **Application type: Desktop app**
+
+Desktop を選ぶ理由は、同意フローがループバック
+（`http://127.0.0.1:<ランダムポート>`）で完結し、**リダイレクト URI を登録しなくて
+よい**から。Web application を選ぶと URI 登録が要るうえ、ポートが実行ごとに変わる
+この方式と噛み合わない。
+
+作成後に JSON をダウンロードし、**作業ディレクトリに `client_secret.json` として
+置く**。
+
+```bash
+mv ~/Downloads/client_secret_*.json ./client_secret.json
+chmod 600 client_secret.json
+```
+
+`.gitignore` 済み。**C を一度実行したら、このファイルはもう要らない**
+（発行された `gmail-credentials.json` の中に client_id と client_secret が入る）。
+
+### B-7. 同意画面で出る警告について
+
+C を実行するとブラウザが開き、**「Google はこのアプリを確認していません」**と
+表示される。審査を通していない自作アプリなので正常。
+
+**詳細 → （安全ではないページ）に移動** で進める。
+
+> [!NOTE]
+> 未審査のアプリには**プロジェクト単位で生涯 100 ユーザーの上限**がある
+> （クライアント ID を作り直してもリセットされない）。使うのが自分ひとりなら
+> 一生かからないので、気にしなくてよい。
+
+### B-8. やってはいけないこと
+
+```bash
+gcloud auth application-default login   # ← 使わない
+```
+
+gcloud は ADC 発行時に `cloud-platform` スコープを強制する。漏洩時の影響が
+「メール読み取り」から「**Google Cloud プロジェクト全体の操作**」に跳ね上がる。
+このツールは ADC へフォールバックしない実装になっている。
+
+### 取り消したくなったら
+
+https://myaccount.google.com/permissions で連携を解除すれば、refresh token は
+即座に無効化される。再発行は C をもう一度実行するだけ。
 
 ## C. Gmail 資格情報の発行
 
-このリポジトリに Go のコードは無い。アクション側をクローンせず直接叩く。
+このリポジトリに Go のコードは無い。アクション側をクローンせず、モジュールを
+直接実行する。
 
 ```bash
-# client_secret.json を置いたディレクトリで
+# B-6 で client_secret.json を置いたディレクトリで
 go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v1 \
   gmail authorize
 ```
 
-ブラウザが開いて同意を求められ、`gmail-credentials.json` ができる。
+起きること:
 
-`gcloud auth application-default login` は使わない。gcloud は ADC 発行時に
-`cloud-platform` スコープを強制するので、CI に置く資格情報が漏れたときの影響が
-「メール読み取り」から「Google Cloud プロジェクト全体の操作」に跳ね上がる。
+1. ローカルにループバックのサーバが立ち、ブラウザが開く
+2. Google アカウントを選ぶ（**OTP が届くアカウント**を選ぶこと）
+3. B-7 の「確認していません」警告 → **詳細 → 移動**
+4. 「Gmail のメールの表示」の同意 → 許可
+5. ブラウザがループバックに戻り、`gmail-credentials.json` ができる
 
-確認:
+疎通確認。**どのメールボックスが開いたか**を表示するので、アカウントを選び間違えて
+いないかはここで分かる:
 
 ```bash
 go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v1 \
-  gmail check     # どのメールボックスが開くか
+  gmail check
 ```
+
+終わったら、もう使わないほうを消しておく:
+
+```bash
+chmod 600 gmail-credentials.json
+rm client_secret.json          # D 以降は不要
+```
+
+> [!CAUTION]
+> `gmail-credentials.json` に入っている refresh token は**失効しない**。
+> 実質的に、そのメールボックスへの恒久的な読み取り鍵。パスワードと同じ扱いをする。
+> 漏れたら https://myaccount.google.com/permissions で連携を解除し、C をやり直す。
 
 ## D. secrets を登録
 
