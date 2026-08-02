@@ -236,7 +236,9 @@ Settings → Secrets and variables → Actions で同じ 6 つを設定する。
 
 ## 全部終わったら
 
-- 平日 JST 15:30 になると `sync.yml` の cron が動いて初回同期が実行される
+- 平日 JST 15:30 の cron が動いて初回同期が実行される。
+  **定刻には来ない。** GitHub の scheduler は混雑で 1〜3 時間ずれる。大引け後という
+  要件は満たすので、遅れること自体は問題ない
 - 即時テストしたければ:
   ```bash
   gh workflow run sync.yml

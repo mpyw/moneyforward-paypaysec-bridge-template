@@ -44,7 +44,7 @@ jobs:
       #   気になるなら SHA-1 で固定する。ref が動かなくなるので、コードが
       #   変わるのはあなたが書き換えたときだけになる:
       #
-      #     uses: mpyw/moneyforward-paypaysec-bridge-action@30817186d35893a56675b6d077532e7425b6c8d5  # v1.0.4
+      #     uses: mpyw/moneyforward-paypaysec-bridge-action@b0ae9c5e617eb990a151bbd125c3d3a631b5d642  # v1.0.5
       #
       #   代償は、スクレイパである以上ある。PayPay 証券や MoneyForward が DOM を
       #   変えた日にセレクタの修正が自動では届かず、毎営業日失敗する。固定するなら
