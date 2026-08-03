@@ -11,6 +11,11 @@ on:
   schedule:
     - cron: '30 6 * * 1-5'
   workflow_dispatch:
+    inputs:
+      allow-emptying-categories:
+        description: '売却でカテゴリが丸ごと空になった場合のみ true。既定は空(=無効)'
+        required: false
+        default: ''
 
 permissions:
   # チェックアウトすら要らないが、既定を絞る意味で明示しておく。OTP は Gmail API
@@ -66,3 +71,8 @@ jobs:
           # gmail.readonly の authorized_user JSON。
           # `mfpp debug gmail authorize` が作る。SETUP.md の C を参照。
           gmail-credentials: ${{ secrets.GMAIL_CREDENTIALS }}
+          # 手動実行のときだけ渡る。cron では常に空 = 無効。
+          #
+          # カテゴリが丸ごと空になる読み取りは，このスクレイパの誤読が毎回とった形
+          # なので既定で拒否する。本当に売り切ったときだけ，1 回この入力を付けて回す。
+          allow-emptying-categories: ${{ inputs.allow-emptying-categories }}
