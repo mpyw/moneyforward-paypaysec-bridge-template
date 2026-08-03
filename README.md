@@ -1,4 +1,8 @@
-# moneyforward-paypaysec-bridge-template
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5483d33d-7b39-4360-ad74-bbeb28f02d3c" alt="moneyforward-paypaysec-bridge-template" width="640">
+</p>
+
+<h1 align="center">moneyforward-paypaysec-bridge-template</h1>
 
 MoneyForward が PayPay 証券に非対応なので、保有銘柄を毎営業日スクレイピングして
 MoneyForward の手入力口座に反映する。そのためのフォーク用リポジトリ。
