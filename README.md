@@ -88,7 +88,7 @@ git remote add upstream https://github.com/mpyw/moneyforward-paypaysec-bridge-te
 3. **Gmail 資格情報を発行する**（ターミナル）:
    ```bash
    # client_secret.json を置いたディレクトリで
-   go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v3 \
+   go run github.com/mpyw/moneyforward-paypaysec-bridge-action/v3/cmd/mfpp@v3 \
      gmail authorize
    ```
 4. **secrets を 6 つ登録する**（ターミナル）:

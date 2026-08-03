@@ -200,7 +200,7 @@ https://myaccount.google.com/permissions で連携を解除すれば、refresh t
 
 ```bash
 # B-6 で client_secret.json を置いたディレクトリで
-go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v3 \
+go run github.com/mpyw/moneyforward-paypaysec-bridge-action/v3/cmd/mfpp@v3 \
   gmail authorize
 ```
 
@@ -216,7 +216,7 @@ go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v3 \
 いないかはここで分かる:
 
 ```bash
-go run github.com/mpyw/moneyforward-paypaysec-bridge-action/cmd/mfpp@v3 \
+go run github.com/mpyw/moneyforward-paypaysec-bridge-action/v3/cmd/mfpp@v3 \
   gmail check
 ```
 
